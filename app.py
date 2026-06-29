@@ -14,6 +14,7 @@ app = Flask(__name__)
 
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
@@ -22,6 +23,19 @@ class Todo(db.Model):
     
     content = db.Column(
         db.String(200),
+        nullable=False
+    )
+
+class Quote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    text = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    author = db.Column(
+        db.String(100),
         nullable=False
     )
 
@@ -35,6 +49,7 @@ def home():
 @app.route("/html_tags")
 def html_tags():
    return render_template("html_tags.html")
+
 @app.route("/todo")
 def todo():
 
@@ -44,6 +59,7 @@ def todo():
         "todo.html",
         todos=todos
     )
+
 @app.route("/add", methods=["POST"])
 def add_todo():
 
@@ -110,8 +126,18 @@ def news():
         "news.html",
         news_list=news_list
     )
+
 @app.route("/quotes")
 def quotes():
+    quote_list = Quote.query.all()
+
+    return render_template(
+        "quotes.html",
+        quote_list = quote_list
+    )
+
+@app.route("/crawl")
+def crawl_quotes():
     options = Options()
     options.binary_location = "/usr/bin/chromium"
     options.add_argument("--headless=new")
@@ -129,7 +155,8 @@ def quotes():
             "quote"
         )
 
-        quote_list = []
+        # quote_list = []
+        Quote.query.delete()
 
         for quote in quote_elements:
 
@@ -143,17 +170,25 @@ def quotes():
                 "author"
             ).text
 
-            quote_list.append({
-                "text": text,
-                "author": author
-            })
+            #quote_list.append({
+            db.session.add(
+                Quote(
+                    text=text,
+                    author=author
+                )
+            )
+            #})
+            db.session.commit()
     finally:
         driver.quit()
 
-        return render_template(
+    """
+    return render_template(
         "quotes.html",
         quote_list=quote_list
     )
+    """
+    return redirect("/quotes")
 
     
 

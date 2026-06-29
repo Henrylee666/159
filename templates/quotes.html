@@ -8,18 +8,24 @@
     </head>
 
     <body>
+
         {% extends "navbar.html" %}
 
-    {% block content %}
-
-        
+        {% block content %}
         
         <h1>Quotes</h1>
+
+        <form action="/crawl" method="GET">
+            <button type="submit">
+                更新資料
+            </button>
+        </form>
+
+        <hr>
 
         {% for quote in quote_list %}
 
             <div>
-
                 <p>
                     {{ quote.text }}
                 </p>
@@ -27,12 +33,12 @@
                 <p>
                     - {{ quote.author }}
                 </p>
-
             </div>
 
             <hr>
 
         {% endfor %}
+    
+        {% endblock %}
     </body>
-    {% endblock %}
 </html>

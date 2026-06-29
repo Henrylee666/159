@@ -5,12 +5,8 @@ FROM python:3.11-slim
 # 後面的操作都會在這個資料夾進行
 WORKDIR /app
 
-# 把本機的 requirements.txt 複製到容器裡
-COPY requirements.txt .
 
-# 在容器中安裝 Flask
-RUN pip install --no-cache-dir -r requirements.txt
-
+#安裝 Chromium、ChromeDriver與相關系統套件
 RUN apt-get update && apt-get install -y \
     chromium \
     chromium-driver \
@@ -20,6 +16,12 @@ RUN apt-get update && apt-get install -y \
     libatk-bridge2.0-0 \
     libgtk-3-0 \
     && rm -rf /var/lib/apt/lists/*
+
+# 把本機的 requirements.txt 複製到容器裡
+COPY requirements.txt .
+
+# 在容器中安裝 Python套件
+RUN pip install --no-cache-dir -r requirements.txt
 
 # 把目前專案資料夾裡的內容全部複製進容器
 COPY . .
